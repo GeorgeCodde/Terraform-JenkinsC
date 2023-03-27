@@ -19,7 +19,7 @@ pipeline {
     stages {
         stage('ApplicationInit'){
             steps {
-                dir('m8/applications/'){
+                dir('app/applications/'){
                     sh 'terraform --version'
                     sh "terraform init" 
                 }
@@ -27,14 +27,14 @@ pipeline {
         }
         stage('ApplicationValidate'){
             steps {
-                dir('m8/applications/'){
+                dir('app/applications/'){
                     sh 'terraform validate'
                 }
             }
         }
         stage('ApplicationPlan'){
             steps {
-                dir('m8/applications/'){
+                dir('app/applications/'){
                     script {
                         try {
                            sh "terraform workspace new ${params.WORKSPACE}"
@@ -56,13 +56,13 @@ pipeline {
                         apply = true
                     } catch (err) {
                         apply = false
-                        dir('m8/applications/'){
+                        dir('app/applications/'){
                             sh "terraform destroy -auto-approve"
                         }
                         currentBuild.result = 'UNSTABLE'
                     }
                     if(apply){
-                        dir('m8/applications/'){
+                        dir('app/applications/'){
                             unstash "terraform-applications-plan"
                             sh 'terraform apply terraform-applications.tfplan'
                         }
